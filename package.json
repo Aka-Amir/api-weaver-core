@@ -1,0 +1,23 @@
+{
+  "name": "@api-weaver/core",
+  "description": "Weaving your APIs into TypeScript !",
+  "author": "Aka-Amir",
+  "private": false,
+  "publisher": "Aka-Amir",
+  "homepage": "https://github.com/Aka-Amir/api-weaver",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.1",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rm -rf dist && mkdir dist && tsc"
+  },
+  "dependencies": {
+    "@types/node": "^24.3.3",
+    "prettier": "^3.6.2"
+  }
+}
