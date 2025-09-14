@@ -1,2 +1,6 @@
 export { ApiWeaver } from "./core/openapi";
-export type { ApiWeaverConfigType } from "./core/types/config.type";
+export type {
+  ApiWeaverConfigType,
+  ApiWeaverAsyncConfigType,
+  ApiWeaverStaticConfigType,
+} from "./core/types/config.type";

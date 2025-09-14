@@ -40,3 +40,10 @@ export type ApiWeaverConfigType<
   outputName: string;
   logger?: ILogger;
 };
+
+export type ApiWeaverAsyncConfigType = ApiWeaverConfigType<
+  ApiSpecServerConfig | ApiSpecDiskConfig
+>;
+
+export type ApiWeaverStaticConfigType =
+  ApiWeaverConfigType<ApiSpecStaticConfig>;
