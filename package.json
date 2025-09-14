@@ -19,5 +19,8 @@
   "dependencies": {
     "@types/node": "^24.3.3",
     "prettier": "^3.6.2"
+  },
+  "devDependencies": {
+    "openapi-types": "^12.1.3"
   }
 }

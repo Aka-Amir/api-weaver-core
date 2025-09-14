@@ -9,6 +9,17 @@ import { ClassBuilder } from "./utils/class-builder/class-builder";
 import { MethodBuilder } from "./utils/class-builder/method-builder";
 import { PropertyBuilder } from "./utils/class-builder/property-builder";
 import { FileWriter } from "./utils/file-writer/file-writer";
+import {
+  ApiSpecDiskConfig,
+  ApiSpecServerConfig,
+  ApiSpecStaticConfig,
+  ApiWeaverConfigType,
+} from "./types/config.type";
+
+import { get } from "https";
+import { createWriteStream, existsSync } from "fs";
+import { mkdtemp, readFile, unlink } from "fs/promises";
+import { tmpdir } from "os";
 
 export class ApiWeaver {
   private _paths: PathList;
@@ -18,26 +29,31 @@ export class ApiWeaver {
   private readonly _rootPath: string;
 
   public readonly version: string;
-  constructor(
-    out: string,
-    openApiObject: Record<string, object | string> | object
-  ) {
-    this.version = openApiObject["openapi"] as string;
+  constructor(config: ApiWeaverConfigType<ApiSpecStaticConfig>) {
+    this.version = config.apiSpec.object["openapi"] as string;
 
-    const components = openApiObject["components"] as Record<string, object>;
+    const components = config.apiSpec.object["components"] as Record<
+      string,
+      object
+    >;
     this._schemas = new SchemaList()
-      .setGeneratePath(join(out, "@types"))
+      .setGeneratePath(join(config.outDirectory, "@types"))
       .init(components["schemas"] as Record<string, ObjectSchemaType>);
 
     this._paths = new PathList(
-      openApiObject["paths"] as Record<string, Record<string, ApiConfig>>,
+      config.apiSpec.object["paths"] as Record<
+        string,
+        Record<string, ApiConfig>
+      >,
       this._schemas
-    ).setGeneratePath(join(out, "api"));
+    ).setGeneratePath(join(config.outDirectory, "api"));
     this._paths.init();
 
-    this._sdkPath = join(out, "app.sdk.ts");
-    this._rootPath = out;
-    this._baseBuilder = new BaseBuilder().setGeneratePath(join(out, "@base"));
+    this._sdkPath = join(config.outDirectory, "app.sdk.ts");
+    this._rootPath = config.outDirectory;
+    this._baseBuilder = new BaseBuilder().setGeneratePath(
+      join(config.outDirectory, "@base")
+    );
   }
 
   async build() {
@@ -109,5 +125,91 @@ export class ApiWeaver {
         `)
     );
     return sdk;
+  }
+
+  public static async createAsync(
+    config: ApiWeaverConfigType<ApiSpecServerConfig | ApiSpecDiskConfig>
+  ) {
+    let openApiObject: Record<string, unknown>;
+    switch (config.apiSpec.type) {
+      case "server":
+        openApiObject = await this.loadSpecFromURL(config.apiSpec);
+        break;
+      case "disk":
+        openApiObject = await this.loadSpecFromDisk(config.apiSpec);
+        break;
+      default:
+        throw new Error("Invalid apiSpec type");
+    }
+    return new ApiWeaver({
+      ...config,
+      apiSpec: {
+        type: "static",
+        object: openApiObject,
+      },
+    });
+  }
+
+  private static async loadSpecFromURL(
+    config: ApiSpecServerConfig
+  ): Promise<Record<string, unknown>> {
+    const tempDir = await mkdtemp(join(tmpdir(), "apiva-"));
+    const outputPath = join(tempDir, "api-spec.json");
+    let headers: Record<string, string> = {
+      "User-Agent": "api-weaver/vite-plugin",
+      Accept: "application/json",
+    };
+
+    if (config.auth) {
+      switch (config.auth.type) {
+        case "basic":
+          const basicToken = Buffer.from(
+            `${config.auth.username}:${config.auth.password}`
+          ).toString("base64");
+          headers["Authorization"] = `Basic ${basicToken}`;
+          break;
+        case "bearer":
+          headers["Authorization"] = `Bearer ${config.auth.token}`;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return new Promise<Record<string, unknown>>((resolve, reject) => {
+      const file = createWriteStream(outputPath);
+      get(
+        {
+          path: config.url,
+          headers,
+        },
+        (response) => {
+          response.pipe(file);
+          file.on("finish", async () => {
+            file.close();
+            const fileContent = await readFile(outputPath, "utf-8");
+            await unlink(outputPath).catch(() => {
+              /* ignore */
+            });
+            resolve(JSON.parse(fileContent));
+          });
+        }
+      ).on("error", async (err: any) => {
+        try {
+          await unlink(outputPath);
+        } finally {
+          reject(err);
+        }
+      });
+    });
+  }
+
+  private static async loadSpecFromDisk(
+    config: ApiSpecDiskConfig
+  ): Promise<Record<string, unknown>> {
+    if (!existsSync(config.path))
+      throw new Error(`File not found: ${config.path}`);
+    const fileContent = await readFile(config.path, "utf-8");
+    return JSON.parse(fileContent);
   }
 }

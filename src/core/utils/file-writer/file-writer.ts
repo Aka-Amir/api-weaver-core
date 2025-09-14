@@ -1,5 +1,6 @@
 import { writeFile } from "fs/promises";
 import { format } from "prettier";
+import { Logger } from "../../logger";
 
 export class FileWriter {
   static async writeCode(path: string, content: string | Buffer) {
@@ -10,7 +11,7 @@ export class FileWriter {
       tabWidth: 2,
       singleQuote: false,
     }).catch(() => {
-      console.warn("Error while saving " + path, FileWriter.name);
+      Logger.warn("Error while saving " + path, FileWriter.name);
       return content.toString("utf-8");
     });
     return writeFile(path, fileContent, {

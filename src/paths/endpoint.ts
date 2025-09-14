@@ -1,3 +1,4 @@
+import { Logger } from "../core/logger";
 import { ApiWeaverClass } from "../core/openapi-class";
 import { MethodBuilder } from "../core/utils/class-builder/method-builder";
 import { SchemaList } from "../schemas/schema-list";
@@ -49,7 +50,7 @@ export class Endpoint extends ApiWeaverClass {
       else if (item.in === "path") {
         path = path.replace(`{${item.name}}`, "${" + item.name + "}");
       } else {
-        console.log("Could not detect !");
+        Logger.log("Could not detect !");
       }
       this._methodObject.addInput(item.name, type, item.required);
     }
@@ -66,7 +67,7 @@ export class Endpoint extends ApiWeaverClass {
         outType = "unknown";
       }
     } catch {
-      console.log("Warning !", `Response for ${this.path} is unknown !!`);
+      Logger.warn("Warning !", `Response for ${this.path} is unknown !!`);
       this._methodObject.addOutputType("object");
       outType = "object";
     }
@@ -96,7 +97,7 @@ export class Endpoint extends ApiWeaverClass {
       ClassRegistry.getInstance().saveClass(classObject);
       return classObject;
     } catch (e) {
-      console.log(this.info);
+      Logger.log(this.info);
       throw e;
     }
   }
