@@ -1,9 +1,9 @@
-import { SchemaRefType, SchemaType } from '../../schemas/types/schema.type';
-import { HttpStatusResponse } from './status.type';
+import { SchemaRefType, SchemaType } from "../../schemas/types/schema.type";
+import { HttpStatusResponse } from "./status.type";
 
 export type ParameterType =
   | {
-      in: 'query';
+      in: "query";
       required: boolean;
       name: string;
       schema: SchemaType;
@@ -11,7 +11,7 @@ export type ParameterType =
   | {
       name: string;
       required: boolean;
-      in: 'path';
+      in: "path";
       schema: { type: string };
     };
 
@@ -26,4 +26,5 @@ export type ApiConfig = {
   requestBody?: PayloadObjectType;
   responses: Partial<Record<HttpStatusResponse, PayloadObjectType>>;
   tags: string[];
+  summary?: string;
 };

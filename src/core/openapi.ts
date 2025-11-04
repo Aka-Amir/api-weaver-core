@@ -21,6 +21,7 @@ import { get as getHTTPS } from "https";
 import { createWriteStream, existsSync } from "fs";
 import { mkdtemp, readFile, unlink } from "fs/promises";
 import { tmpdir } from "os";
+import { InfoType } from "./types/info.type";
 
 export class ApiWeaver {
   private _paths: PathList;
@@ -28,11 +29,12 @@ export class ApiWeaver {
   private _baseBuilder: BaseBuilder;
   private _sdkPath: string;
   private readonly _rootPath: string;
+  public readonly info: InfoType;
 
   public readonly version: string;
   constructor(config: ApiWeaverConfigType<ApiSpecStaticConfig>) {
     this.version = config.apiSpec.object["openapi"] as string;
-
+    this.info = config.apiSpec.object["info"] as InfoType;
     const components = config.apiSpec.object["components"] as Record<
       string,
       object
@@ -68,6 +70,10 @@ export class ApiWeaver {
   private createSdk(createdModule: CreatedModuleType[]) {
     const className = "AppSDK";
     const sdk = new ClassBuilder(className)
+      .setDescription(this.info.description)
+      .setAuthor(this.info.title)
+      .setVersion(this.info.version)
+      .setInfo("title", this.info.title)
       .addProperty(
         new PropertyBuilder("static _instance", className).setAccessModifier(
           "private"

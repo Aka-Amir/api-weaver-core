@@ -1,15 +1,19 @@
-export class PropertyBuilder {
+import { JSEntityBuilder } from "./js-entity-builder";
+
+export class PropertyBuilder extends JSEntityBuilder {
   constructor(
     public readonly name: string,
-    public readonly type: string,
-  ) {}
+    public readonly type: string
+  ) {
+    super();
+  }
 
   private _imports: string[] = [];
 
   private _defaultValue?: string;
   private _isReadOnly: boolean = false;
 
-  private _accessModifier: 'private' | 'public' | 'protected' = 'public';
+  private _accessModifier: "private" | "public" | "protected" = "public";
   public get accessModifier() {
     return this._accessModifier;
   }
@@ -23,7 +27,7 @@ export class PropertyBuilder {
     return this;
   }
 
-  public setAccessModifier(accessModifier: 'private' | 'public' | 'protected') {
+  public setAccessModifier(accessModifier: "private" | "public" | "protected") {
     this._accessModifier = accessModifier;
     return this;
   }
@@ -40,13 +44,14 @@ export class PropertyBuilder {
 
   public build() {
     const orders = [
+      this.jsDoc,
       this._accessModifier, //"access_modifier",
-      this._isReadOnly ? 'readonly' : undefined, // isReadonly
+      this._isReadOnly ? "readonly" : undefined, // isReadonly
       !this._defaultValue
-        ? `${this.name}${this._isReadOnly ? '' : '?'}: ${this.type}`
+        ? `${this.name}${this._isReadOnly ? "" : "?"}: ${this.type}`
         : `${this.name}: ${this.type}`, // hasDefaultValue ? `${name}: type` : `${name}?: type`,
       !this._defaultValue ? `;` : ` = ${this._defaultValue};`, // hasDefaultValue ? ` = ${defaultValue};` : `;`
     ];
-    return orders.filter((i) => !!i).join(' ');
+    return orders.filter((i) => !!i).join(" ");
   }
 }
