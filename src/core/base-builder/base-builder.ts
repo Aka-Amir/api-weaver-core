@@ -50,15 +50,5 @@ export interface IHttpClient {
       join(this.generatePath, "sdk-module.ts"),
       sdkClass.build()
     );
-    // for (const directory of directories) {
-    //   if (directory.isDirectory()) continue;
-    //   const fileData = await readFile(
-    //     join(directory.parentPath, directory.name),
-    //   );
-    //   const path = join(directory.parentPath.replace(root, ''), directory.name);
-    //   const parent = join(this.generatePath, this.getParentPath(path));
-    //   if (!existsSync(parent)) await mkdir(parent, { recursive: true });
-    //   await FileWriter.writeCode(join(this.generatePath, path), fileData);
-    // }
   }
 }

@@ -64,7 +64,7 @@ export class Endpoint extends ApiWeaverClass {
         this._methodObject.addDependency(outType, "../@types");
         this._methodObject.addOutputType(outType);
       } else {
-        outType = "unknown";
+        outType = "object";
       }
     } catch {
       Logger.warn("Warning !", `Response for ${this.path} is unknown !!`);

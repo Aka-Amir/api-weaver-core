@@ -2,7 +2,7 @@ import { join } from "path";
 import { ApiWeaverClass } from "../core/openapi-class";
 import { Schema } from "./schema";
 import { ObjectSchemaType } from "./types/schema.type";
-import { FileNameAdapter } from "./utils/convertToImport";
+import { FileNameAdapter } from "../core/utils/convertToImport";
 import { readdir } from "fs/promises";
 import { FileWriter } from "../core/utils/file-writer/file-writer";
 

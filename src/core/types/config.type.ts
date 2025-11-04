@@ -15,7 +15,11 @@ export type ApiSpecAuthType = ApiSpecBasicAuthType | ApiSpecBearerAuthType;
 
 export type ApiSpecServerConfig = {
   type: "server";
-  url: `${"http" | "https"}://${string}/${string}`;
+  host: string;
+  port?: number;
+  path: string;
+  protocol?: "http" | "https";
+
   auth?: ApiSpecAuthType;
 };
 

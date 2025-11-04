@@ -8,7 +8,7 @@ import {
   SchemaType,
 } from "./types/schema.type";
 import { FileWriter } from "../core/utils/file-writer/file-writer";
-import { FileNameAdapter } from "./utils/convertToImport";
+import { FileNameAdapter } from "../core/utils/convertToImport";
 import { EnumBuilder } from "./enum.builder";
 import { join } from "path";
 import { NonInterfaceException } from "./exceptions/non-interface.exception";

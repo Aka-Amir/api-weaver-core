@@ -1,15 +1,16 @@
 import { mkdir } from "fs/promises";
-import { ApiWeaverClass } from "../core/openapi-class";
-import { SchemaList } from "../schemas/schema-list";
-import { ApiConfig } from "./@types/api-config";
-// import { ClassRegistry } from './class-registry';
-import { Endpoint } from "./endpoint";
-import { join } from "path";
 import { existsSync } from "fs";
-import { format } from "prettier";
-import { FileWriter } from "../core/utils/file-writer/file-writer";
+import { join } from "path";
+
 import { ClassBuilder } from "../core/utils/class-builder/class-builder";
+import { ApiWeaverClass } from "../core/openapi-class";
+import { FileWriter } from "../core/utils/file-writer/file-writer";
+import { SchemaList } from "../schemas/schema-list";
+
+import { ApiConfig } from "./@types/api-config";
 import { CreatedModuleType } from "./@types/created-module.type";
+import { Endpoint } from "./endpoint";
+import { FileNameAdapter } from "../core/utils/convertToImport";
 
 export class PathList extends ApiWeaverClass {
   private _pathsNodes: Record<string, Endpoint[]> = {};
@@ -42,16 +43,11 @@ export class PathList extends ApiWeaverClass {
     for (const [classname, classObj] of Object.entries(builtClass)) {
       const classString = classObj.build();
       if (!existsSync(this.generatePath)) await mkdir(this.generatePath);
-      const fileContent = await format(classString, {
-        parser: "typescript",
-        endOfLine: "auto",
-        semi: true,
-        tabWidth: 2,
-        singleQuote: false,
-      });
-      const path = join(this.generatePath, `${classname}.service.ts`);
-      await FileWriter.writeCode(path, fileContent);
-
+      const path = join(
+        this.generatePath,
+        FileNameAdapter.convertTitleToFilename(classname, "service")
+      );
+      await FileWriter.writeCode(path, classString);
       modules.push({
         name: classname,
         path,

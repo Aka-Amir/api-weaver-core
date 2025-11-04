@@ -2,7 +2,7 @@ import { ApiWeaverClass } from "../core/openapi-class";
 import { EnumType } from "./types/enum.type";
 import { join } from "path";
 import { existsSync } from "fs";
-import { FileNameAdapter } from "./utils/convertToImport";
+import { FileNameAdapter } from "../core/utils/convertToImport";
 import { FileWriter } from "../core/utils/file-writer/file-writer";
 export class EnumBuilder extends ApiWeaverClass {
   private _enumName: string = "";

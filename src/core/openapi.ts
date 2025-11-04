@@ -16,7 +16,8 @@ import {
   ApiWeaverConfigType,
 } from "./types/config.type";
 
-import { get } from "https";
+import { get as getHTTP } from "http";
+import { get as getHTTPS } from "https";
 import { createWriteStream, existsSync } from "fs";
 import { mkdtemp, readFile, unlink } from "fs/promises";
 import { tmpdir } from "os";
@@ -156,7 +157,7 @@ export class ApiWeaver {
     const tempDir = await mkdtemp(join(tmpdir(), "apiva-"));
     const outputPath = join(tempDir, "api-spec.json");
     let headers: Record<string, string> = {
-      "User-Agent": "api-weaver/vite-plugin",
+      "User-Agent": "api-weaver/plugin",
       Accept: "application/json",
     };
 
@@ -178,12 +179,20 @@ export class ApiWeaver {
 
     return new Promise<Record<string, unknown>>((resolve, reject) => {
       const file = createWriteStream(outputPath);
-      get(
+      (config.protocol === "https" ? getHTTPS : getHTTP)(
         {
-          path: config.url,
+          pathname: config.path,
+          path: config.path,
+          hostname: config.host,
+          port: config.port,
           headers,
+          method: "GET",
         },
         (response) => {
+          if (response.statusCode !== 200) {
+            reject(`Error resolved with ${response.statusCode}`);
+            return;
+          }
           response.pipe(file);
           file.on("finish", async () => {
             file.close();

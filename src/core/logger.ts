@@ -9,14 +9,14 @@ export class Logger {
   }
 
   static log(message?: any, ...optionalParams: any[]): void {
-    this._instance.logger?.log(message, ...optionalParams);
+    this._instance?.logger?.log(message, ...optionalParams);
   }
 
   static error(message?: any, ...optionalParams: any[]): void {
-    this._instance.logger?.error(message, ...optionalParams);
+    this._instance?.logger?.error(message, ...optionalParams);
   }
 
   static warn(message?: any, ...optionalParams: any[]): void {
-    this._instance.logger?.warn(message, ...optionalParams);
+    this._instance?.logger?.warn(message, ...optionalParams);
   }
 }

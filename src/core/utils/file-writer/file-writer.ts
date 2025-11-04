@@ -7,7 +7,7 @@ export class FileWriter {
     const fileContent = await format(content.toString("utf-8"), {
       parser: "typescript",
       endOfLine: "auto",
-      semi: false,
+      semi: true,
       tabWidth: 2,
       singleQuote: false,
     }).catch(() => {
