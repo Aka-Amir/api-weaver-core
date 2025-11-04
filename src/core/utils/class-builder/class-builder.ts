@@ -1,16 +1,19 @@
-import { MethodBuilder } from './method-builder';
-import { PropertyBuilder } from './property-builder';
+import { JSEntityBuilder } from "./js-entity-builder";
+import { MethodBuilder } from "./method-builder";
+import { PropertyBuilder } from "./property-builder";
 
-export class ClassBuilder {
-  constructor(public readonly className: string) {}
+export class ClassBuilder extends JSEntityBuilder {
+  constructor(public readonly className: string) {
+    super();
+  }
 
   private _imports: string[] = [];
   private _classBody: string[] = [];
-  private _extensionToken: string = '';
+  private _extensionToken: string = "";
 
   addMethod(method: MethodBuilder) {
     if (method.imports.length > 0) this._imports.push(...method.imports);
-    this._classBody.push(method.build('method'));
+    this._classBody.push(method.build("method"));
     return this;
   }
 
@@ -23,30 +26,30 @@ export class ClassBuilder {
   setExtends(className: string, importFrom: string) {
     const importToken = `import { ${className} } from "${importFrom}"; `;
     if (!this._imports.includes(importToken)) this._imports.push(importToken);
-    this._extensionToken = 'extends ' + className + ' ';
+    this._extensionToken = "extends " + className + " ";
     return this;
   }
 
   removeExtends() {
-    this._extensionToken = '';
+    this._extensionToken = "";
     return this;
   }
 
   private addIndent(item: string) {
     return item
-      .split('\n')
+      .split("\n")
       .map((item) => `\t` + item)
-      .join('\n');
+      .join("\n");
   }
 
   build() {
     const imports = Array.from(new Set(this._imports));
     return `
-${imports.join('\n')}
-
+${imports.join("\n")}
+${this.jsDoc}
 export class ${this.className} ${this._extensionToken}{
 
-${this._classBody.map((scriptItem) => this.addIndent(scriptItem)).join('\n \n')}
+${this._classBody.map((scriptItem) => this.addIndent(scriptItem)).join("\n \n")}
 
 }
 `;

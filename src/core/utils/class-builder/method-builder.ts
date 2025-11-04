@@ -1,15 +1,19 @@
-export class MethodBuilder {
-  constructor(public readonly methodName: string) {}
+import { JSEntityBuilder } from "./js-entity-builder";
 
-  private _content: string = '';
+export class MethodBuilder extends JSEntityBuilder {
+  constructor(public readonly methodName: string) {
+    super();
+  }
+
+  private _content: string = "";
   private _outputTypes: string[] = [];
   private _requiredInputs: string[] = [];
   private _optionalInputs: string[] = [];
   private _imports: string[] = [];
   private _isAsync: boolean = false;
-  private _accessModifier: 'private' | 'public' | 'protected' = 'public';
+  private _accessModifier: "private" | "public" | "protected" = "public";
 
-  setAccessModifier(accessModifier: 'private' | 'public' | 'protected') {
+  setAccessModifier(accessModifier: "private" | "public" | "protected") {
     this._accessModifier = accessModifier;
     return this;
   }
@@ -40,7 +44,7 @@ export class MethodBuilder {
     if (required) {
       this._requiredInputs.push(`${name}: ${type}`);
     } else {
-      this._optionalInputs.push(`${name}${!required ? '?' : ''}: ${type}`);
+      this._optionalInputs.push(`${name}${!required ? "?" : ""}: ${type}`);
     }
     return this;
   }
@@ -55,9 +59,10 @@ export class MethodBuilder {
     return this;
   }
 
-  build(as: 'method' | 'function' = 'method', prefix: string = '') {
+  build(as: "method" | "function" = "method", prefix: string = "") {
+    prefix += `\n${this.jsDoc}`;
     switch (as) {
-      case 'function':
+      case "function":
         return this.buildAsFunction(prefix);
       default:
         return this.buildAsMethod(prefix);
@@ -65,28 +70,28 @@ export class MethodBuilder {
   }
 
   private getInputs() {
-    return this.inputs.join(', ');
+    return this.inputs.join(", ");
   }
 
   private getOutput() {
     const outType =
-      this._outputTypes.length > 0 ? this._outputTypes.join(' | ') : '';
-    if (this._isAsync) return `Promise<${outType || 'unknown'}>`;
+      this._outputTypes.length > 0 ? this._outputTypes.join(" | ") : "";
+    if (this._isAsync) return `Promise<${outType || "unknown"}>`;
     return outType;
   }
 
-  private buildAsMethod(prefix: string = '') {
+  private buildAsMethod(prefix: string = "") {
     const params = this.getInputs();
     const out = this.getOutput();
-    const asyncToken = this._isAsync ? 'async ' : '';
-    return `${prefix}${this._accessModifier} ${asyncToken}${this.methodName}(${params})${!out ? '' : `: ${out}`} {\n\t${this._content}\n}`;
+    const asyncToken = this._isAsync ? "async " : "";
+    return `${prefix}${this._accessModifier} ${asyncToken}${this.methodName}(${params})${!out ? "" : `: ${out}`} {\n\t${this._content}\n}`;
   }
 
-  private buildAsFunction(prefix: string = '') {
+  private buildAsFunction(prefix: string = "") {
     const params = this.getInputs();
     const out = this.getOutput();
-    const asyncToken = this._isAsync ? 'async ' : '';
-    return `${prefix}export ${asyncToken}function ${this.methodName}(${params})${!out ? '' : `: ${out}`} {
+    const asyncToken = this._isAsync ? "async " : "";
+    return `${prefix}export ${asyncToken}function ${this.methodName}(${params})${!out ? "" : `: ${out}`} {
   ${this._content}
 }`;
   }

@@ -30,6 +30,10 @@ export class Endpoint extends ApiWeaverClass {
     const query: string[] = [];
     let bodyVar = "";
 
+    if (this.info.summary) {
+      this._methodObject.setDescription(this.info.summary);
+    }
+
     if (this.info.requestBody) {
       const ref = schema.getReference(
         this.info.requestBody?.content["application/json"].schema.$ref
